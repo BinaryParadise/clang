@@ -101,6 +101,10 @@ def NonStaticNonConstCXXMethod
                     [{!S->isStatic() && !S->isConst()}],
                     "non-static non-const member functions">;
 
+def ObjCClassMethod : SubsetSubject<ObjCMethod,
+                                       [{S->isClassMethod()}],
+                                       "Objective-C class methods">;
+
 def ObjCInstanceMethod : SubsetSubject<ObjCMethod,
                                        [{S->isInstanceMethod()}],
                                        "Objective-C instance methods">;
@@ -3419,4 +3423,11 @@ def ObjCExternallyRetained : InheritableAttr {
   let Spellings = [Clang<"objc_externally_retained">];
   let Subjects = SubjectList<[NonParmVar, Function, Block, ObjCMethod]>;
   let Documentation = [ObjCExternallyRetainedDocs];
+}
+
+def PeregrineTarget : InheritableAttr {
+  let Args = [StringArgument<"router">, VersionArgument<"version", 1>];
+  let Spellings = [Clang<"pe_routed">];
+  let Subjects = SubjectList<[ObjCInterface, ObjCImpl, ObjCClassMethod]>;
+  let Documentation = [Undocumented];
 }

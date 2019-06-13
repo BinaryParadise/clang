@@ -29,6 +29,7 @@ if(CLANG_ENABLE_STATIC_ANALYZER)
   add_clang_subdirectory(clang-extdef-mapping)
   add_clang_subdirectory(scan-build)
   add_clang_subdirectory(scan-view)
+  add_clang_subdirectory(clang-peregrine)
 endif()
 
 # We support checking out the clang-tools-extra repository into the 'extra'
@@ -40,3 +41,4 @@ add_llvm_external_project(clang-tools-extra extra)
 
 # libclang may require clang-tidy in clang-tools-extra.
 add_clang_subdirectory(libclang)
+add_clang_subdirectory(PeregrinePlugin)
