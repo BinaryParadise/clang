@@ -90,7 +90,7 @@ ParsedType Sema::getConstructorName(IdentifierInfo &II,
   // When naming a constructor as a member of a dependent context (eg, in a
   // friend declaration or an inherited constructor declaration), form an
   // unresolved "typename" type.
-  if (CurClass->isDependentContext() && !EnteringContext) {
+  if (CurClass->isDependentContext() && !EnteringContext && SS.getScopeRep()) {
     QualType T = Context.getDependentNameType(ETK_None, SS.getScopeRep(), &II);
     return ParsedType::make(T);
   }
@@ -2413,7 +2413,11 @@ bool Sema::FindAllocationFunctions(SourceLocation StartLoc, SourceRange Range,
     }
 
     if (getLangOpts().OpenCLCPlusPlus && R.empty()) {
-      Diag(StartLoc, diag::err_openclcxx_not_supported) << "default new";
+      if (PlaceArgs.empty()) {
+        Diag(StartLoc, diag::err_openclcxx_not_supported) << "default new";
+      } else {
+        Diag(StartLoc, diag::err_openclcxx_placement_new);
+      }
       return true;
     }
 

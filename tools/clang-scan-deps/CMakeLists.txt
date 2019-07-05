@@ -16,7 +16,9 @@ set(CLANG_SCAN_DEPS_LIB_DEPS
   clangFrontendTool
   clangLex
   clangParse
+  clangSerialization
   clangTooling
+  clangDependencyScanning
   )
 
 target_link_libraries(clang-scan-deps
