@@ -34,6 +34,8 @@ struct RouterStruct {
     std::string SELECT;
 };
 
+std::vector<RouterStruct> routers;
+
 static void appendRouterToFile(std::vector<RouterStruct> routers) {
     if (routers.size() > 0) {
         mkdir(outputPath.c_str(), 0775);
@@ -84,7 +86,6 @@ namespace PeregrinePlugin {
     class QTMatchHandler: public MatchFinder::MatchCallback {
         private:
         CompilerInstance &CI;
-        std::vector<RouterStruct> routers;
         
         bool isShouldUseCopy(const string typeStr) {
             if (typeStr.find("NSString") != string::npos ||
@@ -103,7 +104,7 @@ namespace PeregrinePlugin {
         
         void onEndOfTranslationUnit() {
             llvm::errs() << "onEndOfTranslationUnit-1" << "\n";
-            appendRouterToFile(routers);
+//            appendRouterToFile(routers);
             llvm::errs() << "onEndOfTranslationUnit-2" << "\n";
         }
         
@@ -113,7 +114,6 @@ namespace PeregrinePlugin {
         }
         
         bool handleObjcMethDecl(const ObjCMethodDecl *MD) {
-            llvm::errs() << MD->getNameAsString() << "\n";
             if (MD->hasAttr<PeregrineTargetAttr>()) {
                 DiagnosticsEngine &diag = MD->getASTContext().getDiagnostics();
                 PeregrineTargetAttr *targetAttr = MD->getAttr<PeregrineTargetAttr>();
@@ -227,5 +227,6 @@ int main(int argc, const char **argv) {
     CommonOptionsParser op(argc, argv, OptsCategory);
     ClangTool Tool(op.getCompilations(), op.getSourcePathList());
     int result = Tool.run(newFrontendActionFactory<PeregrinePlugin::ClangPeregrineAction>().get());
+    appendRouterToFile(routers);
     return result;
 }
