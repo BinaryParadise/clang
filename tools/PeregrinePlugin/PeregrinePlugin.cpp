@@ -24,10 +24,10 @@ std::string outputPath;
 struct RouterStruct {
     RouterStruct() : URL() {}
     RouterStruct(std::string S, std::string I, std::string B)
-    : URL(S), CLASS(I), SELECT(B) {}
+    : URL(S), CLASS(I), SEL(B) {}
     std::string URL;
     std::string CLASS;
-    std::string SELECT;
+    std::string SEL;
 };
 
 static void appendRouterToFile(std::vector<RouterStruct> routers) {
@@ -48,7 +48,7 @@ static void appendRouterToFile(std::vector<RouterStruct> routers) {
             RouterStruct R = *it;
             for (unsigned int i = 0; i < root.size(); i++) {
                 Json::Value item = root[i];
-                if (item["url"].asString() == R.URL) {
+                if (item["class"].asString() == R.CLASS && item["selector"] == R.SEL) {
                     root.removeIndex(i, &item);
                     break;
                 }
@@ -57,7 +57,7 @@ static void appendRouterToFile(std::vector<RouterStruct> routers) {
             Json::Value newValue;
             newValue["url"] = R.URL;
             newValue["class"] = R.CLASS;
-            newValue["selector"] = R.SELECT;
+            newValue["selector"] = R.SEL;
             root.append(newValue);
         }
 

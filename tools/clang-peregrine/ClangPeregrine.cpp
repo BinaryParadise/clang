@@ -67,7 +67,6 @@ static void appendRouterToFile(std::vector<RouterStruct> routers) {
             root.append(newValue);
         }
         
-        llvm::errs() << filePath;
         std::ofstream outFile(filePath, ios::out | ios::trunc);
         outFile << root.toStyledString();
         outFile.close();
@@ -212,7 +211,7 @@ namespace PeregrinePlugin {
 static cl::OptionCategory OptsCategory("ClangPeregrine", "Router Generator");
 
 int main(int argc, const char **argv) {
-    outputPath = "/Users/bonana/Github/Peregrine/Example/Pods/Peregrine/Support/Peregrine.bundle";
+    outputPath = ".";
 #if 0
     printf("-------------------------\n");
     for (int i=0; i < argc + 50; i++) {
