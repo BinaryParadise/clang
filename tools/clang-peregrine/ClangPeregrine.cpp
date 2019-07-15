@@ -22,7 +22,6 @@ using namespace llvm;
 using namespace clang::ast_matchers;
 using namespace clang::tooling;
 
-Rewriter rewriter;
 std::string outputPath;
 
 struct RouterStruct {
@@ -84,8 +83,6 @@ bool isUserSourceCode(const string filename) {
 namespace PeregrinePlugin {
     class QTMatchHandler: public MatchFinder::MatchCallback {
         private:
-        CompilerInstance &CI;
-        
         bool isShouldUseCopy(const string typeStr) {
             if (typeStr.find("NSString") != string::npos ||
                 typeStr.find("NSArray") != string::npos ||
@@ -95,19 +92,16 @@ namespace PeregrinePlugin {
             return false;
         }
         public:
-        QTMatchHandler(CompilerInstance &CI) :CI(CI) {
-            llvm::errs() << "QTMatchHandler-1" << "\n";
-            rewriter.setSourceMgr(CI.getASTContext().getSourceManager(), CI.getLangOpts());
-            llvm::errs() << "QTMatchHandler-2" << "\n";
-        }
-        
-        void onEndOfTranslationUnit() {
-            llvm::errs() << "onEndOfTranslationUnit-1" << "\n";
-//            appendRouterToFile(routers);
-            llvm::errs() << "onEndOfTranslationUnit-2" << "\n";
+        QTMatchHandler(CompilerInstance &CI) {
         }
         
         void run(const MatchFinder::MatchResult &Result) {
+            const ObjCInterfaceDecl *ID =  Result.Nodes.getNodeAs<ObjCInterfaceDecl>("objcInterfaceDecl");
+            for(auto method = ID->classmeth_begin();method!=ID->classmeth_end();method++) {
+                const auto ocmd = *method;
+                handleObjcMethDecl(ocmd);
+            }
+            return;
             const ObjCMethodDecl *MD = Result.Nodes.getNodeAs<ObjCMethodDecl>("objcMethodDecl");
             handleObjcMethDecl(MD);
         }
@@ -143,11 +137,6 @@ namespace PeregrinePlugin {
                     SourceLocation insertLoc = paramDecl1->getEndLoc().getLocWithOffset(paramDecl1->getName().size());
                     diag.Report(insertLoc, diag.getCustomDiagID(DiagnosticsEngine::Warning, "Supports only one parameter at most"));
                 }
-                //提示信息：错误、警告、备注等等
-                if (!MD->hasBody()) {
-                    unsigned DiagID = diag.getCustomDiagID(DiagnosticsEngine::Warning, "Router path \"%0\" is valid please implementation!");
-                    diag.Report(MD->getLocation(), DiagID) << targetAttr->getRouter();
-                }
                 
                 if (valid) {//路由定义有效
                     llvm::errs() << "🍺Did find router config: " << targetAttr->getRouter().str() << "\n";
@@ -169,14 +158,12 @@ namespace PeregrinePlugin {
         QTMatchHandler handler;
         public:
         QTASTConsumer(CompilerInstance &CI) :handler(CI) {
-            matcher.addMatcher(objcMethodDecl().bind("objcMethodDecl"), &handler);
-            llvm::errs() << "QTASTConsumer" << "\n";
+            matcher.addMatcher(objcInterfaceDecl().bind("objcInterfaceDecl"), &handler);
+//            matcher.addMatcher(objcMethodDecl().bind("objcMethodDecl"), &handler);
         }
         
         void HandleTranslationUnit(ASTContext &context) {
-            llvm::errs() << "HandleTranslationUnit-1" << "\n";
             matcher.matchAST(context);
-            llvm::errs() << "HandleTranslationUnit-2" << "\n";
         }
     };
     
@@ -185,20 +172,10 @@ namespace PeregrinePlugin {
         StringRef curFile;
         public:
         unique_ptr<ASTConsumer> CreateASTConsumer(CompilerInstance &CI, StringRef iFile) override {
-            llvm::errs() << "source: " << iFile << "\n";
             if(isUserSourceCode(iFile.str())) {
                 return unique_ptr<QTASTConsumer> (new QTASTConsumer(CI));
             }
             return NULL;
-        }
-        
-        bool ParseArgs(const CompilerInstance &ci, const std::vector<std::string> &args)  {
-            for (auto item : args) {
-                llvm::errs() << "output: " << item << "\n";
-                outputPath = item;
-                break;
-            }
-            return true;
         }
     };
 }

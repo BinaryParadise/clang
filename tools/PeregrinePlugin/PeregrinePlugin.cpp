@@ -103,7 +103,6 @@ namespace PeregrinePlugin {
         }
 
         bool handleObjcMethDecl(const ObjCMethodDecl *MD) {
-            llvm::errs() << "2" << "\n";
             if (MD->hasAttr<PeregrineTargetAttr>()) {
                 DiagnosticsEngine &diag = MD->getASTContext().getDiagnostics();
                 PeregrineTargetAttr *targetAttr = MD->getAttr<PeregrineTargetAttr>();
