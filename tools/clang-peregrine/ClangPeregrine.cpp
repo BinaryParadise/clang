@@ -187,15 +187,27 @@ namespace PeregrinePlugin {
 
 static cl::OptionCategory OptsCategory("ClangPeregrine", "Router Generator");
 
+static bool startsWith(const char *pre, const char *str)
+{
+    if (str == NULL) return false;
+    size_t lenpre = strlen(pre),
+    lenstr = strlen(str);
+    return lenstr < lenpre ? false : strncmp(pre, str, lenpre) == 0;
+}
+
 int main(int argc, const char **argv) {
     outputPath = ".";
-#if 0
+#if 1
     printf("-------------------------\n");
-    for (int i=0; i < argc + 50; i++) {
+    for (int i=0; i < argc; i++) {
         const char *param = argv[i];
         printf("argv[%d] = \"%s\";\n", i, param);
-        if (i> argc && param == NULL) {
-            break;
+        if (param == NULL) {
+            continue;
+        }
+        if (startsWith("-p=", param)) {
+            string str(param);
+            outputPath = str.substr(3);
         }
     }
     printf("-------------------------\n");
