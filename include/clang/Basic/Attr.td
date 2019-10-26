@@ -3426,7 +3426,7 @@ def ObjCExternallyRetained : InheritableAttr {
 }
 
 def PeregrineTarget : InheritableAttr {
-  let Args = [StringArgument<"router">, VersionArgument<"version", 1>];
+  let Args = [StringArgument<"router">];
   let Spellings = [Clang<"pe_routed">];
   let Subjects = SubjectList<[ObjCInterface, ObjCImpl, ObjCClassMethod]>;
   let Documentation = [Undocumented];

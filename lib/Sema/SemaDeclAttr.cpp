@@ -6413,10 +6413,7 @@ static void handlePeregrineTargetAttr(Sema &S, Decl *D, const ParsedAttr &AL) {
     StringRef Str;
     SourceLocation ArgLoc;
     if (S.checkStringLiteralArgumentAttr(AL, 0, Str, &ArgLoc)) {
-        VersionTuple version;
-        // const auto *Literal = dyn_cast<StringLiteral>(AL.getArgAsExpr(1));
-        version.tryParse("10.0");
-        D->addAttr(::new (S.Context) PeregrineTargetAttr(AL.getRange(), S.getASTContext(), Str, version, AL.getAttributeSpellingListIndex()));
+        D->addAttr(::new (S.Context) PeregrineTargetAttr(S.getASTContext(), AL, Str));
     } else {
         S.Diag(D->getLocation(), diag::err_param_default_argument_missing);
     }
